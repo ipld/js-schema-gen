@@ -3,12 +3,15 @@
   "version": "0.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha test/*.spec.js",
+    "coverage": "nyc --reporter=html mocha test/*.spec.js && npx http-server coverage"
   },
   "keywords": [],
   "author": "Mikeal Rogers <mikeal.rogers@gmail.com> (https://www.mikealrogers.com/)",
   "license": "(Apache-2.0 AND MIT)",
   "dependencies": {
+    "bytesish": "^0.4.1",
+    "cids": "^0.7.1",
     "ipld-schema": "0.0.0"
   },
   "devDependencies": {

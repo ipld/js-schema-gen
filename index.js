@@ -1,4 +1,7 @@
 'use strict'
+const CID = require('cids')
+const bytes = require('bytesish')
+
 const create = parsed => {
   const classes = {}
   const classSet = new Set()
@@ -11,6 +14,15 @@ const create = parsed => {
   }
 
   class Kind extends Node {
+    constructor (value) {
+      super(value)
+      if (value instanceof this.constructor) {
+        this.parsed = true
+        this.value = value.encode()
+      } else {
+        if (!this.parsed) throw new Error('Validation error')
+      }
+    }
     encode () {
       return this.value.encode ? this.value.encode() : this.value
     }
@@ -20,9 +32,47 @@ const create = parsed => {
       return Number.isInteger(value)
     }
   }
+  classes.Float = class Float extends Kind {
+    validate (value) {
+      return Number.isFloat(value)
+    }
+  }
   classes.String = class String extends Kind {
     validate (value) {
       return typeof value === 'string'
+    }
+  }
+  classes.Null = class Null extends Kind {
+    validate (value) {
+      return null === null
+    }
+  }
+  classes.Boolean = class Boolean extends Kind {
+    validate (value) {
+      return typeof value === 'boolean'
+    }
+  }
+  classes.Bytes = class Bytes extends Kind {
+    validate (value) {
+      return bytes.native(value)
+    }
+    encode () {
+      return this.parsed
+    }
+  }
+  classes.List = class List extends Kind {
+    validate (value) {
+      return Array.isArray(value)
+    }
+  }
+  classes.Map = class Map extends Kind {
+    validate (value) {
+      return typeof value === 'object'
+    }
+  }
+  classes.Link = class Link extends Kind {
+    validate (value) {
+      return CID.isCID(value)
     }
   }
 
@@ -116,6 +166,8 @@ const create = parsed => {
     }
   }
 
+  // Enum
+  
   const kindMap = {
     struct: Struct,
     union: Union
