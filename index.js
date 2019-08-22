@@ -12,11 +12,7 @@ const create = parsed => {
 
   class Kind extends Node {
     encode () {
-      return this.value
-    }
-
-    from (def) {
-      return new kindMap[def.kind](this.value)
+      return this.value.encode ? this.value.encode() : this.value
     }
   }
   classes.Int = class Int extends Kind {
@@ -77,7 +73,19 @@ const create = parsed => {
   }
 
   class Union extends Node {
-    validate () {
+    validate (value) {
+      const parsed = {}
+      if (typeof value !== 'object') throw new Error('Invalid encoding')
+      const keys = Object.keys(value)
+      if (keys.length !== 1) throw new Error('Map must only have one key')
+      
+      if (this.def.representation.keyed) {
+        const key = keys[0]
+        const val = value[key]
+        const className = this.def.representation.keyed[key]
+        parsed[key] = new classes[className](val)
+      }
+      return parsed
     }
 
     from (def) {
@@ -87,7 +95,11 @@ const create = parsed => {
         if (typeof obj !== 'object') throw new Error('Unsupported union serialization')
         if (rep.keyed) {
           for (const [key, className] of Object.entries(rep.keyed)) {
-            if (obj[key]) return classes[className].from(obj[key])
+            if (obj[key]) {
+              let parsed = { }
+              parsed[key] = new classes[className](obj[key])
+              return new this.cls(parsed)
+            }
           }
           const keys = Object.keys(rep.keyed)
           throw new Error('Keyed union must have one of the following keys: ' + keys.join(', '))
@@ -95,6 +107,12 @@ const create = parsed => {
           throw new Error('Unsupported: only have support for keyed unions')
         }
       }
+    }
+    encode () {
+      let [ key, value ] = Object.keys(this.parsed).map(k => ([k, this.parsed[k]]))[0]
+      let ret = {}
+      ret[key] = value.encode()
+      return ret
     }
   }
 
