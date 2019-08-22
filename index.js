@@ -14,6 +14,7 @@ const create = parsed => {
     encode () {
       return this.value
     }
+
     from (def) {
       return new kindMap[def.kind](this.value)
     }
@@ -55,8 +56,8 @@ const create = parsed => {
     }
 
     encode () {
-      let encoded = {}
-      for (let [k, v] of Object.entries(this.value)) {
+      const encoded = {}
+      for (const [k, v] of Object.entries(this.value)) {
         if (typeof this.parsed[k] === 'undefined') encoded[k] = v.encode ? v.encode() : v
         else if (this.parsed[k] === null) encoded[k] = null
         else encoded[k] = this.parsed[k].encode()
@@ -68,6 +69,8 @@ const create = parsed => {
       return obj => {
         if (typeof obj !== 'object') throw new Error('Unsupported struct serialization')
         // TODO: handle any renames
+
+        // eslint-disable-next-line new-cap
         return new this.cls(obj)
       }
     }
@@ -75,9 +78,6 @@ const create = parsed => {
 
   class Union extends Node {
     validate () {
-      for (const [k, def] of Object.entries(this.def)) {
-        console.log(k, def)
-      }
     }
 
     from (def) {

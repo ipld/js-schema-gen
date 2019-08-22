@@ -7,7 +7,6 @@ const tcompare = require('tcompare')
 
 const test = it
 
-const same = (x, y) => assert.ok(tcompare.same(x, y).match)
 const strict = (x, y) => assert.ok(tcompare.strict(x, y).match)
 
 test('basic struct', done => {
@@ -36,11 +35,11 @@ test('nullable', done => {
   const classes = main(parse(schema))
   let t = new classes.Test({ name: 'hello world' })
 
-  strict(t.encode(), {name: 'hello world'})
+  strict(t.encode(), { name: 'hello world' })
   t = new classes.Test({ name: null })
-  strict(t.encode(), {name: null})
+  strict(t.encode(), { name: null })
 
-  strict(t.encode(), classes.Test.from({name: null}).encode())
+  strict(t.encode(), classes.Test.from({ name: null }).encode())
   done()
 })
 
@@ -52,7 +51,7 @@ test('properties w/o schema', done => {
   `
   const hw = { name: 'hello', test: 'world' }
   const classes = main(parse(schema))
-  let t = new classes.Test(hw)
+  const t = new classes.Test(hw)
   strict(t.encode(), hw)
   strict(t.encode(), classes.Test.from(hw).encode())
   done()
@@ -70,7 +69,7 @@ test('struct in struct', done => {
     name String
   }
   `
-  const hw = { b: { c: {name: 'hello'}}}
+  const hw = { b: { c: { name: 'hello' } } }
   const classes = main(parse(schema))
 
   const a = new classes.A(hw)
