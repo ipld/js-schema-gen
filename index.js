@@ -35,7 +35,7 @@ const create = parsed => {
   }
   classes.Float = class Float extends Kind {
     validate (value) {
-      return Number.isFloat(value)
+      return typeof value === 'number' && !Number.isInteger(value)
     }
   }
   classes.String = class String extends Kind {
@@ -88,7 +88,7 @@ const create = parsed => {
         }
         if (typeof value[k] !== 'undefined') {
           if (value[k] === null) {
-            if (def.nullable) parsed[k] = null
+            if (def.nullable || def.type === 'Null') parsed[k] = null
             else throw new Error('Field is not nullable')
           } else {
             if (value[k].constructor && classSet.has(value[k].constructor)) {
