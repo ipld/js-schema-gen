@@ -22,9 +22,7 @@ test('basic keyed union', done => {
 
   strict(t.encode(), hw)
 
-  let val = classes.Test.from(hw).encode()
+  const val = classes.Test.from(hw).encode()
   strict(t.encode(), val)
   done()
 })
-
-

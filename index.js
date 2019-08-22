@@ -23,6 +23,7 @@ const create = parsed => {
         if (!this.parsed) throw new Error('Validation error')
       }
     }
+
     encode () {
       return this.value.encode ? this.value.encode() : this.value
     }
@@ -44,7 +45,7 @@ const create = parsed => {
   }
   classes.Null = class Null extends Kind {
     validate (value) {
-      return null === null
+      return value === null
     }
   }
   classes.Boolean = class Boolean extends Kind {
@@ -56,6 +57,7 @@ const create = parsed => {
     validate (value) {
       return bytes.native(value)
     }
+
     encode () {
       return this.parsed
     }
@@ -128,7 +130,7 @@ const create = parsed => {
       if (typeof value !== 'object') throw new Error('Invalid encoding')
       const keys = Object.keys(value)
       if (keys.length !== 1) throw new Error('Map must only have one key')
-      
+
       if (this.def.representation.keyed) {
         const key = keys[0]
         const val = value[key]
@@ -146,8 +148,9 @@ const create = parsed => {
         if (rep.keyed) {
           for (const [key, className] of Object.entries(rep.keyed)) {
             if (obj[key]) {
-              let parsed = { }
+              const parsed = { }
               parsed[key] = new classes[className](obj[key])
+              // eslint-disable-next-line new-cap
               return new this.cls(parsed)
             }
           }
@@ -158,16 +161,17 @@ const create = parsed => {
         }
       }
     }
+
     encode () {
-      let [ key, value ] = Object.keys(this.parsed).map(k => ([k, this.parsed[k]]))[0]
-      let ret = {}
+      const [key, value] = Object.keys(this.parsed).map(k => ([k, this.parsed[k]]))[0]
+      const ret = {}
       ret[key] = value.encode()
       return ret
     }
   }
 
   // Enum
-  
+
   const kindMap = {
     struct: Struct,
     union: Union
