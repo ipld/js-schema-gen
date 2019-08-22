@@ -10,7 +10,7 @@ const test = it
 const same = (x, y) => assert.ok(tcompare.same(x, y).match)
 const strict = (x, y) => assert.ok(tcompare.strict(x, y).match)
 
-test('basic struct', async () => {
+test('basic struct', done => {
   const schema = `
   type Test struct {
     name String
@@ -24,9 +24,10 @@ test('basic struct', async () => {
   strict(t.encode(), hw)
 
   strict(t.encode(), classes.Test.from(hw).encode())
+  done()
 })
 
-test('nullable', async () => {
+test('nullable', done => {
   const schema = `
   type Test struct {
     name nullable String
@@ -40,5 +41,20 @@ test('nullable', async () => {
   strict(t.encode(), {name: null})
 
   strict(t.encode(), classes.Test.from({name: null}).encode())
+  done()
+})
+
+test('properties w/o schema', done => {
+  const schema = `
+  type Test struct {
+    name String
+  }
+  `
+  const hw = { name: 'hello', test: 'world' }
+  const classes = main(parse(schema))
+  let t = new classes.Test(hw)
+  strict(t.encode(), hw)
+  strict(t.encode(), classes.Test.from(hw).encode())
+  done()
 })
 
