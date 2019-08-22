@@ -58,3 +58,23 @@ test('properties w/o schema', done => {
   done()
 })
 
+test('struct in struct', done => {
+  const schema = `
+  type A struct {
+    b B
+  }
+  type B struct {
+    c C
+  }
+  type C struct {
+    name String
+  }
+  `
+  const hw = { b: { c: {name: 'hello'}}}
+  const classes = main(parse(schema))
+
+  const a = new classes.A(hw)
+  strict(a.encode(), hw)
+  strict(a.encode(), classes.A.from(hw).encode())
+  done()
+})
