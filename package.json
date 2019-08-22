@@ -1,7 +1,6 @@
 {
   "name": "ipld-schema-gen",
   "version": "0.0.0",
-  "description": "",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -15,5 +14,17 @@
   "devDependencies": {
     "aegir": "^20.0.0",
     "tcompare": "^2.3.0"
-  }
+  },
+  "directories": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mikeal/ipld-schema-gen.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mikeal/ipld-schema-gen/issues"
+  },
+  "homepage": "https://github.com/mikeal/ipld-schema-gen#readme",
+  "description": ""
 }
