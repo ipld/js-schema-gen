@@ -191,7 +191,7 @@ const create = parsed => {
     return me
   `
 
-  for (const [key, def] of Object.entries(parsed.schema)) {
+  for (const [key, def] of Object.entries(parsed)) {
     // eslint-disable-next-line no-new-func
     const fn = new Function('baseClass', 'def', _eval(key))
     const baseClass = kindMap[def.kind]
