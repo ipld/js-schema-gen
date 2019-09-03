@@ -12,7 +12,7 @@
   "dependencies": {
     "bytesish": "^0.4.1",
     "cids": "^0.7.1",
-    "ipld-schema": "0.1.0"
+    "ipld-schema": "^0.1.0"
   },
   "devDependencies": {
     "aegir": "^20.0.0",
