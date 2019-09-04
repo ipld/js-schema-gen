@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "mocha test/*.spec.js",
+    "pretest": "aegir lint",
+    "test": "aegir test -t node browser",
     "coverage": "nyc --reporter=html mocha test/*.spec.js && npx http-server coverage"
   },
   "keywords": [],
