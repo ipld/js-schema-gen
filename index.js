@@ -113,7 +113,7 @@ const create = parsed => {
       return encoded
     }
 
-    from (def) {
+    encoder (def) {
       return obj => {
         if (typeof obj !== 'object') throw new Error('Unsupported struct serialization')
         // TODO: handle any renames
@@ -140,7 +140,7 @@ const create = parsed => {
       return parsed
     }
 
-    from (def) {
+    encoder (def) {
       const rep = def.representation
       return obj => {
         // should we throw if there is more than one key?
@@ -186,8 +186,8 @@ const create = parsed => {
         return me
       }
     }
-    me.from = me.prototype.from(def)
-    delete me.prototype.from
+    me.encoder = me.prototype.encoder(def)
+    delete me.prototype.encoder
     return me
   `
 
