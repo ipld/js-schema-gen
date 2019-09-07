@@ -36,6 +36,6 @@ test('all kinds in struct', done => {
 
   strict(t.encode(), hw)
 
-  strict(t.encode(), classes.Test.from(hw).encode())
+  strict(t.encode(), classes.Test.encoder(hw).encode())
   done()
 })

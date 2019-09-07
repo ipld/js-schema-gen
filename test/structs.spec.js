@@ -22,7 +22,7 @@ test('basic struct', done => {
 
   strict(t.encode(), hw)
 
-  strict(t.encode(), classes.Test.from(hw).encode())
+  strict(t.encode(), classes.Test.encoder(hw).encode())
   done()
 })
 
@@ -39,7 +39,7 @@ test('nullable', done => {
   t = new classes.Test({ name: null })
   strict(t.encode(), { name: null })
 
-  strict(t.encode(), classes.Test.from({ name: null }).encode())
+  strict(t.encode(), classes.Test.encoder({ name: null }).encode())
   done()
 })
 
@@ -53,7 +53,7 @@ test('properties w/o schema', done => {
   const classes = main(parse(schema))
   const t = new classes.Test(hw)
   strict(t.encode(), hw)
-  strict(t.encode(), classes.Test.from(hw).encode())
+  strict(t.encode(), classes.Test.encoder(hw).encode())
   done()
 })
 
@@ -74,6 +74,6 @@ test('struct in struct', done => {
 
   const a = new classes.A(hw)
   strict(a.encode(), hw)
-  strict(a.encode(), classes.A.from(hw).encode())
+  strict(a.encode(), classes.A.encoder(hw).encode())
   done()
 })
