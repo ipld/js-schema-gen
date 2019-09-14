@@ -27,7 +27,7 @@ test('basic keyed union', done => {
   done()
 })
 
-test('test path get', done => {
+test('test path get', async () => {
  const schema = `
   type Test union {
     | String "name"
@@ -39,9 +39,8 @@ test('test path get', done => {
   const hw = { name: 'hello world' }
   let t = new classes.Test(hw)
 
-  strict(t.get('/'), 'hello world')
+  strict(await t.get('/'), 'hello world')
 
   t = new classes.Test({ map: {x: hw} })
-  strict(t.get('x/name'), 'hello world')
-  done() 
+  strict(await t.get('x/name'), 'hello world')
 })

@@ -1,24 +1,48 @@
 'use strict'
 const CID = require('cids')
 const bytes = require('bytesish')
+const Block = require('@ipld/block')
 
-const create = parsed => {
+const create = (parsed, opts={}) => {
   const classes = {}
   const classSet = new Set()
 
+  class Remaining {
+    constructor (node, remaining) {
+      this.node = node 
+      this.remaining = remaining
+    }
+  }
+
   class Node {
-    constructor (value) {
+    constructor (value, schema) {
       this.parsed = this.validate(value)
       this.value = value
+      this.schema = schema
     }
-    get (path) {
-      return this.resolve(path.split('/').filter(x => x))
+    async get (path) {
+      let result = this.resolve(path.split('/').filter(x => x))
+      if (result instanceof Remaining) {
+        if (opts.getBlock) {
+          let link = result.node
+          let block = await opts.getBlock(link.value)
+          let expected = link.schema.type.expectedType
+          let node = new classes[expected](block.decode())
+          return node.get(result.remaining.join('/'))
+        } else {
+          return result
+        }
+      }
+      return result
+    }
+    block (codec='dag-json') {
+      return Block.encoder(this.encode(), codec)
     }
   }
 
   class Kind extends Node {
-    constructor (value) {
-      super(value)
+    constructor (value, schema) {
+      super(value, schema)
       if (value instanceof this.constructor) {
         this.parsed = true
         this.value = value.encode()
@@ -84,7 +108,7 @@ const create = parsed => {
       return value
     }
   }
-  classes.List = class List extends Map {
+  classes.List = class List extends classes.Map {
     validate (value) {
       return Array.isArray(value)
     }
@@ -92,6 +116,9 @@ const create = parsed => {
   classes.Link = class Link extends Kind {
     validate (value) {
       return CID.isCID(value)
+    }
+    resolve (arr) {
+      return new Remaining(this, arr)
     }
   }
 
@@ -111,8 +138,17 @@ const create = parsed => {
             if (value[k].constructor && classSet.has(value[k].constructor)) {
               parsed[k] = value[k]
             } else {
-              const CLS = classes[def.type]
-              parsed[k] = new CLS(value[k])
+              if (def.type.kind) {
+                let kind = def.type.kind
+                if (kind === 'link') {
+                  parsed[k] = new classes.Link(value[k], def)
+                } else {
+                  throw new Error('schema error')
+                }
+              } else {
+                const CLS = classes[def.type]
+                parsed[k] = new CLS(value[k], def)
+              }
             }
           }
         }

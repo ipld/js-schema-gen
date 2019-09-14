@@ -57,7 +57,7 @@ test('properties w/o schema', done => {
   done()
 })
 
-test('struct in struct', done => {
+test('struct in struct', async () => {
   const schema = `
   type A struct {
     b B
@@ -76,6 +76,5 @@ test('struct in struct', done => {
   strict(a.encode(), hw)
   strict(a.encode(), classes.A.encoder(hw).encode())
 
-  strict(a.get('b/c/name'), 'hello')
-  done()
+  strict(await a.get('b/c/name'), 'hello')
 })
