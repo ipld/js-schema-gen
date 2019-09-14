@@ -119,6 +119,11 @@ const create = parsed => {
       }
       return parsed
     }
+    
+    resolve (arr) {
+      if (!arr.length) return this
+      return this.parsed[arr.shift()].resolve(arr)
+    }
 
     encode () {
       const encoded = {}

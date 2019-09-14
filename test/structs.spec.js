@@ -75,5 +75,7 @@ test('struct in struct', done => {
   const a = new classes.A(hw)
   strict(a.encode(), hw)
   strict(a.encode(), classes.A.encoder(hw).encode())
+
+  strict(a.get('b/c/name'), 'hello')
   done()
 })
