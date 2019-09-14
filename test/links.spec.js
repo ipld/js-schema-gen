@@ -27,7 +27,7 @@ test('basic struct', async () => {
   `
   const classes = main(parse(schema))
   const b = Block.encoder(Buffer.from('asdf'), 'raw')
-  let origin = { b: await b.cid() }
+  const origin = { b: await b.cid() }
   const t = new classes.Test(origin)
 
   strict(t.encode(), origin)
@@ -50,11 +50,11 @@ test('struct in struct', async () => {
   const { getBlock, put } = storage()
   const classes = main(parse(schema), { getBlock })
 
-  const c = (new classes.C({name: 'hello'})).block()
-  const b = (new classes.B({c: await c.cid()})).block()
+  const c = (new classes.C({ name: 'hello' })).block()
+  const b = (new classes.B({ c: await c.cid() })).block()
   await Promise.all([put(c), put(b)])
 
-  const a = new classes.A({b: await b.cid()})
+  const a = new classes.A({ b: await b.cid() })
 
   strict(await a.get('b/c/name'), 'hello')
 })

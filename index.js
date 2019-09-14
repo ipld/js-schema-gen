@@ -3,13 +3,13 @@ const CID = require('cids')
 const bytes = require('bytesish')
 const Block = require('@ipld/block')
 
-const create = (parsed, opts={}) => {
+const create = (parsed, opts = {}) => {
   const classes = {}
   const classSet = new Set()
 
   class Remaining {
     constructor (node, remaining) {
-      this.node = node 
+      this.node = node
       this.remaining = remaining
     }
   }
@@ -20,14 +20,15 @@ const create = (parsed, opts={}) => {
       this.value = value
       this.schema = schema
     }
+
     async get (path) {
-      let result = this.resolve(path.split('/').filter(x => x))
+      const result = this.resolve(path.split('/').filter(x => x))
       if (result instanceof Remaining) {
         if (opts.getBlock) {
-          let link = result.node
-          let block = await opts.getBlock(link.value)
-          let expected = link.schema.type.expectedType
-          let node = new classes[expected](block.decode())
+          const link = result.node
+          const block = await opts.getBlock(link.value)
+          const expected = link.schema.type.expectedType
+          const node = new classes[expected](block.decode())
           return node.get(result.remaining.join('/'))
         } else {
           return result
@@ -35,7 +36,8 @@ const create = (parsed, opts={}) => {
       }
       return result
     }
-    block (codec='dag-json') {
+
+    block (codec = 'dag-json') {
       return Block.encoder(this.encode(), codec)
     }
   }
@@ -89,6 +91,7 @@ const create = (parsed, opts={}) => {
     validate (value) {
       return bytes.native(value)
     }
+
     encode () {
       return this.parsed
     }
@@ -97,6 +100,7 @@ const create = (parsed, opts={}) => {
     validate (value) {
       return typeof value === 'object'
     }
+
     resolve (arr) {
       if (!arr.length) return this.value
       let value = this.value
@@ -117,6 +121,7 @@ const create = (parsed, opts={}) => {
     validate (value) {
       return CID.isCID(value)
     }
+
     resolve (arr) {
       return new Remaining(this, arr)
     }
@@ -138,8 +143,9 @@ const create = (parsed, opts={}) => {
             if (value[k].constructor && classSet.has(value[k].constructor)) {
               parsed[k] = value[k]
             } else {
+              /* eslint-disable max-depth */
               if (def.type.kind) {
-                let kind = def.type.kind
+                const kind = def.type.kind
                 if (kind === 'link') {
                   parsed[k] = new classes.Link(value[k], def)
                 } else {
@@ -155,7 +161,7 @@ const create = (parsed, opts={}) => {
       }
       return parsed
     }
-    
+
     resolve (arr) {
       if (!arr.length) return this
       return this.parsed[arr.shift()].resolve(arr)
@@ -199,7 +205,7 @@ const create = (parsed, opts={}) => {
     }
 
     resolve (arr) {
-      let value = Object.values(this.parsed)[0]
+      const value = Object.values(this.parsed)[0]
       return value.resolve(arr)
     }
 
