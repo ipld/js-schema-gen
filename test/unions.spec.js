@@ -26,3 +26,22 @@ test('basic keyed union', done => {
   strict(t.encode(), val)
   done()
 })
+
+test('test path get', done => {
+ const schema = `
+  type Test union {
+    | String "name"
+    | String "alt"
+    | Map "map"
+  } representation keyed
+  `
+  const classes = main(parse(schema))
+  const hw = { name: 'hello world' }
+  let t = new classes.Test(hw)
+
+  strict(t.get('/'), 'hello world')
+
+  t = new classes.Test({ map: {x: hw} })
+  strict(t.get('x/name'), 'hello world')
+  done() 
+})

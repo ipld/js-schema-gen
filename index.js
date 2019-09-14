@@ -11,6 +11,9 @@ const create = parsed => {
       this.parsed = this.validate(value)
       this.value = value
     }
+    get (path) {
+      return this.resolve(path.split('/').filter(x => x))
+    }
   }
 
   class Kind extends Node {
@@ -22,6 +25,11 @@ const create = parsed => {
       } else {
         if (!this.parsed) throw new Error('Validation error')
       }
+    }
+
+    resolve (arr) {
+      if (arr.length) throw new Error('Cannot traverse path into this object')
+      return this.value
     }
 
     encode () {
@@ -57,19 +65,28 @@ const create = parsed => {
     validate (value) {
       return bytes.native(value)
     }
-
     encode () {
       return this.parsed
-    }
-  }
-  classes.List = class List extends Kind {
-    validate (value) {
-      return Array.isArray(value)
     }
   }
   classes.Map = class Map extends Kind {
     validate (value) {
       return typeof value === 'object'
+    }
+    resolve (arr) {
+      if (!arr.length) return this.value
+      let value = this.value
+      while (arr.length) {
+        const index = arr.shift()
+        value = value[index]
+        if (value === 'undefined') throw new Error(`"${index}" was not found.`)
+      }
+      return value
+    }
+  }
+  classes.List = class List extends Map {
+    validate (value) {
+      return Array.isArray(value)
     }
   }
   classes.Link = class Link extends Kind {
@@ -138,6 +155,11 @@ const create = parsed => {
         parsed[key] = new classes[className](val)
       }
       return parsed
+    }
+
+    resolve (arr) {
+      let value = Object.values(this.parsed)[0]
+      return value.resolve(arr)
     }
 
     encoder (def) {
