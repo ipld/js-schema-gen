@@ -186,6 +186,12 @@ const create = (parsed, opts = {}) => {
         return new this.cls(obj)
       }
     }
+
+    decoder (def) {
+      // this will change once aliasing is supported but
+      // right now the validation on both sides is identical.
+      return this.encoder(def)
+    }
   }
 
   class Union extends Node {
