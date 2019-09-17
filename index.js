@@ -3,6 +3,8 @@ const CID = require('cids')
 const bytes = require('bytesish')
 const Block = require('@ipld/block')
 
+const isInt = n => n % 1 === 0
+
 const create = (parsed, opts = {}) => {
   const classes = {}
   const classSet = new Set()
@@ -17,8 +19,13 @@ const create = (parsed, opts = {}) => {
   class Node {
     constructor (value, schema) {
       this.parsed = this.validate(value)
+      this.valid = Boolean(this.parsed)
       this.value = value
       this.schema = schema
+    }
+
+    get isNode () {
+      return true
     }
 
     async get (path) {
@@ -31,10 +38,13 @@ const create = (parsed, opts = {}) => {
           const node = new classes[expected](block.decode())
           return node.get(result.remaining.join('/'))
         } else {
-          return result
+          throw new Error('get() cannot resolve multi-block paths without opts.getBlock.')
         }
       }
-      return result
+      if (typeof result === 'object' && !result.isKind) {
+        throw new Error('get() must resolve to a primitive kind. Use .resolve() instead.')
+      }
+      return result.value ? result.value : result
     }
 
     block (codec = 'dag-json') {
@@ -42,20 +52,43 @@ const create = (parsed, opts = {}) => {
     }
   }
 
+  const cast = o => {
+    if (typeof o === 'undefined') throw new Error('Cannot cast undefined')
+    if (typeof o === 'boolean') return new classes.Boolean(o)
+    if (typeof o === 'string') return new classes.String(o)
+    if (o === null) return new classes.Null(null)
+    if (typeof o === 'number') {
+      if (isInt(o)) return new classes.Int(o)
+      else return new classes.Float(o)
+    }
+    if (typeof o === 'object') {
+      if (o.isNode) return o
+      if (Array.isArray(o)) return new classes.List(o)
+      // TODO: replace Buffer.isBuffer with bytesish to reduce bundle size
+      if (Buffer.isBuffer(o)) return new classes.Bytes(o)
+      if (CID.isCID(o)) return new classes.Link(o)
+      return new classes.Map(o)
+    }
+    throw new Error('Unsupported type')
+  }
+
   class Kind extends Node {
     constructor (value, schema) {
+      if (typeof value === 'undefined') throw new Error('undefined value')
       super(value, schema)
+      this.isKind = true
       if (value instanceof this.constructor) {
-        this.parsed = true
+        this.parsed = value
         this.value = value.encode()
       } else {
-        if (!this.parsed) throw new Error('Validation error')
+        if (!this.valid) throw new Error('Validation error')
+        this.parsed = value
       }
     }
 
     resolve (arr) {
       if (arr.length) throw new Error('Cannot traverse path into this object')
-      return this.value
+      return this
     }
 
     encode () {
@@ -101,15 +134,14 @@ const create = (parsed, opts = {}) => {
       return typeof value === 'object'
     }
 
+    keys () {
+      return Object.keys(this.value)
+    }
+
     resolve (arr) {
-      if (!arr.length) return this.value
-      let value = this.value
-      while (arr.length) {
-        const index = arr.shift()
-        value = value[index]
-        if (value === 'undefined') throw new Error(`"${index}" was not found.`)
-      }
-      return value
+      if (!arr.length) return this
+      const key = arr.shift()
+      return cast(this.parsed[key]).resolve(arr)
     }
   }
   classes.List = class List extends classes.Map {
@@ -165,6 +197,10 @@ const create = (parsed, opts = {}) => {
     resolve (arr) {
       if (!arr.length) return this
       return this.parsed[arr.shift()].resolve(arr)
+    }
+
+    keys () {
+      return Object.keys(this.parsed)
     }
 
     encode () {
