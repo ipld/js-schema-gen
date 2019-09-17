@@ -52,6 +52,15 @@ const create = (parsed, opts = {}) => {
     }
   }
 
+  /* The cast() function is useful at this stage of development
+   * but it should be seen as an unnecessary performance bottleneck
+   * wherever it is used.
+   * Recursively casting Kind classes around values isn't strictly necessary
+   * because no schema types can be defined within these containers. The only
+   * reason to do this is to get a consistent API when resolving through
+   * nodes and it's always going to be faster to branch the logic for
+   * these rather than cast a Kind instance around them.
+   */
   const cast = o => {
     if (typeof o === 'undefined') throw new Error('Cannot cast undefined')
     if (typeof o === 'boolean') return new classes.Boolean(o)
