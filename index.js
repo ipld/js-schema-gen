@@ -9,6 +9,28 @@ const create = (parsed, opts = {}) => {
   const classes = {}
   const classSet = new Set()
 
+  class Advanced {
+    constructor (value, schema) {
+      // TODO: schema validation
+      this.value = value
+      this.schema = schema
+      this.opts = opts
+      for (const [prop, method] of Object.entries(schema.implementation)) {
+        this[prop] = (...args) => method(this, ...args)
+      }
+    }
+
+    encoder (schema) {
+      // eslint-disable-next-line new-cap
+      return obj => new this.cls(obj, schema)
+    }
+
+    decoder (schema) {
+      // eslint-disable-next-line new-cap
+      return obj => new this.cls(obj, schema)
+    }
+  }
+
   class Remaining {
     constructor (node, remaining) {
       this.node = node
@@ -291,7 +313,6 @@ const create = (parsed, opts = {}) => {
 
   const kindMap = {
     struct: classes.Struct,
-    map: classes.Map,
     union: classes.Union
   }
 
@@ -312,6 +333,7 @@ const create = (parsed, opts = {}) => {
     delete me.prototype.encoder
     return me
   `
+  const result = {}
   for (const [key, def] of Object.entries(parsed.types)) {
     // eslint-disable-next-line no-new-func
     const fn = new Function('baseClass', 'def', _eval(key))
@@ -321,36 +343,18 @@ const create = (parsed, opts = {}) => {
       if (!opts.advanced || !opts.advanced[className]) {
         throw new Error(`This schema needs and implementation of ${className}`)
       }
-      baseClass = opts.advanced[className]
+      def.implementation = opts.advanced[className]
+      baseClass = Advanced
     } else {
       baseClass = kindMap[def.kind]
     }
     const _class = fn(baseClass, def)
     classes[key] = _class
+    result[key] = _class
   }
   Object.values(classes).forEach(cls => classSet.add(cls))
 
-  return classes
+  return result
 }
 
 module.exports = create
-
-class AdvancedMap {
-  constructor (value, schema) {
-    // TODO: schema validation
-    this.value = value
-    this.schema = schema
-  }
-
-  encoder (schema) {
-    // eslint-disable-next-line new-cap
-    return obj => new this.cls(obj, schema)
-  }
-
-  decoder (schema) {
-    // eslint-disable-next-line new-cap
-    return obj => new this.cls(obj, schema)
-  }
-}
-
-module.exports.AdvancedMap = AdvancedMap
