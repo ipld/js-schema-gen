@@ -14,7 +14,7 @@
     "@ipld/block": "^2.0.4",
     "bytesish": "^0.4.1",
     "cids": "^0.7.1",
-    "ipld-schema": "^0.2.0"
+    "ipld-schema": "^0.3.0"
   },
   "devDependencies": {
     "aegir": "^20.1.0",
