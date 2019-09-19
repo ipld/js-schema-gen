@@ -3,11 +3,11 @@ const assert = require('assert')
 const { it } = require('mocha')
 const main = require('../')
 const parse = require('./parse')
-const tcompare = require('tcompare')
+// const tcompare = require('tcompare')
 
 const test = it
 
-const strict = (x, y) => assert.ok(tcompare.strict(x, y).match)
+// const strict = (x, y) => assert.ok(tcompare.strict(x, y).match)
 
 test('basic struct', done => {
   const schema = `
@@ -22,4 +22,3 @@ test('basic struct', done => {
   assert.ok(t instanceof TestAdvanced)
   done()
 })
-

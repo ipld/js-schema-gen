@@ -284,6 +284,9 @@ const create = (parsed, opts = {}) => {
     }
   }
 
+  classes.Struct = Struct
+  classes.Union = Union
+
   // Enum
 
   const kindMap = {
@@ -314,7 +317,7 @@ const create = (parsed, opts = {}) => {
     const fn = new Function('baseClass', 'def', _eval(key))
     let baseClass
     if (def.representation && def.representation.advanced) {
-      let className = def.representation.advanced
+      const className = def.representation.advanced
       if (!opts.advanced || !opts.advanced[className]) {
         throw new Error(`This schema needs and implementation of ${className}`)
       }
@@ -326,20 +329,26 @@ const create = (parsed, opts = {}) => {
     classes[key] = _class
   }
   Object.values(classes).forEach(cls => classSet.add(cls))
-  
+
   return classes
 }
 
 module.exports = create
 
 class AdvancedMap {
-  constructor (obj, schema) {
+  constructor (value, schema) {
     // TODO: schema validation
+    this.value = value
+    this.schema = schema
   }
+
   encoder (schema) {
+    // eslint-disable-next-line new-cap
     return obj => new this.cls(obj, schema)
   }
+
   decoder (schema) {
+    // eslint-disable-next-line new-cap
     return obj => new this.cls(obj, schema)
   }
 }
