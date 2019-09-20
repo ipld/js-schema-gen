@@ -38,3 +38,32 @@ test('advanced bytes', done => {
   strict(hw, passed)
   done()
 })
+
+test('schema in advanced', done => {
+  const layoutSchema = `
+  type TestLayout struct {
+    name String
+    i Int
+  }`
+  const schema = `
+  advanced TestLayout
+  type Test { String: &Any } representation advanced TestLayout
+  `
+  const testLayout = parse(layoutSchema)
+  let passed = false
+  const TestLayout = { test: node => { passed = node.value }, schema: testLayout }
+  const classes = main(parse(schema), { advanced: { TestLayout } })
+  const hw = { name: 'hello world', i: 1 }
+  const t = classes.Test.encoder(hw)
+  t.test()
+  strict(hw, passed)
+
+  try {
+    classes.Test.encoder({ name: 'test', i: 'invalid' })
+    throw new Error('Should have thrown')
+  } catch (e) {
+    strict(e.message, 'Validation error')
+  }
+
+  done()
+})

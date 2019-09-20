@@ -9,6 +9,17 @@ const create = (parsed, opts = {}) => {
   const classes = {}
   const classSet = new Set()
 
+  if (opts.advanced) {
+    for (const [key, impl] of Object.entries(opts.advanced)) {
+      if (impl.schema) {
+        const s = impl.schema
+        const advanced = s.opts && s.opts.advanced ? s.opts.advanced : {}
+        const _opts = Object.assign({}, opts, { advanced })
+        impl.schema = create(impl.schema, _opts)[key]
+      }
+    }
+  }
+
   class Advanced {
     constructor (value, schema) {
       // TODO: schema validation
@@ -16,7 +27,11 @@ const create = (parsed, opts = {}) => {
       this.schema = schema
       this.opts = opts
       for (const [prop, method] of Object.entries(schema.implementation)) {
-        this[prop] = (...args) => method(this, ...args)
+        if (prop === 'schema') {
+          this.parsed = method.encoder(value)
+        } else {
+          this[prop] = (...args) => method(this, ...args)
+        }
       }
     }
 
