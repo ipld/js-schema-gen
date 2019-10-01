@@ -5,6 +5,12 @@ const Block = require('@ipld/block')
 
 const isInt = n => n % 1 === 0
 
+const _create = (CLS, value, schema) => {
+  if (!CLS) throw new Error('Missing Class')
+  if (CLS.encoder) return CLS.encoder(value)
+  else return new CLS(value, schema)
+}
+
 const create = (parsed, opts = {}) => {
   const classes = {}
   const classSet = new Set()
@@ -44,6 +50,10 @@ const create = (parsed, opts = {}) => {
       // eslint-disable-next-line new-cap
       return obj => new this.cls(obj, schema)
     }
+
+    encode () {
+      return this.parsed.encode()
+    }
   }
 
   class Remaining {
@@ -55,9 +65,14 @@ const create = (parsed, opts = {}) => {
 
   class Node {
     constructor (value, schema) {
-      this.parsed = this.validate(value)
+      if (!value.isNode) {
+        this.parsed = this.validate(value)
+        this.value = value
+      } else {
+        this.parsed = value
+        Object.defineProperty(this, 'value', { get: () => parsed.encode() })
+      }
       this.valid = Boolean(this.parsed)
-      this.value = value
       this.schema = schema
     }
 
@@ -72,7 +87,7 @@ const create = (parsed, opts = {}) => {
           const link = result.node
           const block = await opts.getBlock(link.value)
           const expected = link.schema.type.expectedType
-          const node = new classes[expected](block.decode())
+          const node = _create(classes[expected], block.decode(), this.schema)
           return node.get(result.remaining.join('/'))
         } else {
           throw new Error('get() cannot resolve multi-block paths without opts.getBlock.')
@@ -225,13 +240,13 @@ const create = (parsed, opts = {}) => {
               if (def.type.kind) {
                 const kind = def.type.kind
                 if (kind === 'link') {
-                  parsed[k] = new classes.Link(value[k], def)
+                  parsed[k] = _create(classes.Link, value[k], def)
                 } else {
                   throw new Error('schema error')
                 }
               } else {
                 const CLS = classes[def.type]
-                parsed[k] = new CLS(value[k], def)
+                parsed[k] = _create(CLS, value[k], def)
               }
             }
           }
@@ -265,7 +280,7 @@ const create = (parsed, opts = {}) => {
         // TODO: handle any renames
 
         // eslint-disable-next-line new-cap
-        return new this.cls(obj)
+        return new this.cls(obj, def)
       }
     }
   }
@@ -281,7 +296,7 @@ const create = (parsed, opts = {}) => {
         const key = keys[0]
         const val = value[key]
         const className = this.def.representation.keyed[key]
-        parsed[key] = new classes[className](val)
+        parsed[key] = _create(classes[className], val)
       }
       return parsed
     }
@@ -300,9 +315,17 @@ const create = (parsed, opts = {}) => {
           for (const [key, className] of Object.entries(rep.keyed)) {
             if (obj[key]) {
               const parsed = { }
-              parsed[key] = new classes[className](obj[key])
+              if (typeof className === 'string') {
+                parsed[key] = _create(classes[className], obj[key])
+              } else {
+                if (className.kind === 'link') {
+                  return _create(classes.Link, obj[key], className)
+                } else {
+                  throw new Error('Unsupported inline type')
+                }
+              }
               // eslint-disable-next-line new-cap
-              return new this.cls(parsed)
+              return new this.cls(parsed, rep)
             }
           }
           const keys = Object.keys(rep.keyed)
