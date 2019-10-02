@@ -101,11 +101,11 @@ test('advanced features', done => {
   }
   _test('Bar', ['asdf'])
   _test('Bar', [])
-  _test('Baz', [{'adf': 'asdf'}])
+  _test('Baz', [{ adf: 'asdf' }])
   _test('Baz', [])
 
   _test = (className, invalid) => {
-    let threw = true 
+    let threw = true
     try {
       classes[className].encoder(invalid)
       threw = false
@@ -117,10 +117,9 @@ test('advanced features', done => {
   }
 
   _test('Bar', [100])
-  _test('Bar', {should: 'fail'})
+  _test('Bar', { should: 'fail' })
   _test('Baz', [['asdf']])
   _test('Baz', [null])
 
   done()
 })
-
