@@ -10,6 +10,8 @@ const test = it
 
 const strict = (x, y) => assert.ok(tcompare.strict(x, y).match)
 
+const s = o => JSON.stringify(o)
+
 test('all kinds', done => {
   const schema = `
   type TestString string
@@ -42,7 +44,7 @@ test('all kinds', done => {
     } catch (e) {
       assert.ok(true)
     }
-    if (!threw) throw new Error(`${className} should have failed validation for ${invalid}`)
+    if (!threw) throw new Error(`${className} should have failed validation for ${s(invalid)}`)
   }
   _test('TestString', 100)
   _test('TestInt', 'string')
@@ -84,3 +86,41 @@ test('all kinds in struct', done => {
   const t = classes.Test.encoder(hw)
   done()
 })
+
+test('advanced features', done => {
+  const schema = `
+    type Foo string
+    type Bar [Foo]
+    type Baz [{String:Foo}]
+  `
+  const classes = main(parse(schema))
+
+  let _test = (className, value) => {
+    const node = classes[className].encoder(value)
+    assert.deepEqual(node.encode(), value)
+  }
+  _test('Bar', ['asdf'])
+  _test('Bar', [])
+  _test('Baz', [{'adf': 'asdf'}])
+  _test('Baz', [])
+
+  _test = (className, invalid) => {
+    let threw = true 
+    try {
+      classes[className].encoder(invalid)
+      threw = false
+    } catch (e) {
+    }
+    if (!threw) {
+      throw new Error(`${className} should throw with ${s(invalid)}`)
+    }
+  }
+
+  _test('Bar', [100])
+  _test('Bar', {should: 'fail'})
+  _test('Baz', [['asdf']])
+  _test('Baz', [null])
+
+  done()
+})
+
