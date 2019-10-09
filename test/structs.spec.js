@@ -17,7 +17,6 @@ test('basic struct', done => {
   const hw = { name: 'hello world', i: 1 }
   const t = classes.Test.encoder(hw)
 
-  console.log(t.encode(), hw)
   assert.deepEqual(t.encode(), hw)
   done()
 })
@@ -65,7 +64,15 @@ test('struct in struct', async () => {
   const hw = { b: { c: { name: 'hello' } } }
   const classes = main(parse(schema))
 
-  const a = new classes.A(hw)
+  const a = classes.A.encoder(hw)
   assert.deepEqual(a.encode(), hw)
-  assert.deepEqual(await a.get('b/c/name'), 'hello')
+  let x = await a.get('b/c/name')
+  assert.deepEqual(x, 'hello')
+
+  x = await a.getNode('b/c/name')
+  assert.equal(x.value, 'hello')
+  assert.equal(x.constructor.name, 'String')
+
+  x = await a.getNode('b')
+  assert.equal(x.constructor.name, 'B')
 })
