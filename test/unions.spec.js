@@ -18,7 +18,7 @@ test('basic keyed union', done => {
   `
   const classes = main(parse(schema))
   const hw = { name: 'hello world' }
-  const t = new classes.Test(hw)
+  const t = classes.Test.encoder(hw)
 
   strict(t.encode(), hw)
 
@@ -37,10 +37,10 @@ test('test path get', async () => {
   `
   const classes = main(parse(schema))
   const hw = { name: 'hello world' }
-  let t = new classes.Test(hw)
+  let t = classes.Test.encoder(hw)
 
-  strict(await t.get('/'), 'hello world')
+  strict(await t.get('/*'), 'hello world')
 
-  t = new classes.Test({ map: { x: hw } })
-  strict(await t.get('x/name'), 'hello world')
+  t = classes.Test.encoder({ map: { x: hw } })
+  strict(await t.get('map/x/name'), 'hello world')
 })
