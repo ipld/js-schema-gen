@@ -3,12 +3,9 @@ const assert = require('assert')
 const { it } = require('mocha')
 const main = require('../')
 const parse = require('./parse')
-const tcompare = require('tcompare')
 const bytes = require('bytesish')
 
 const test = it
-
-const strict = (x, y) => assert.ok(tcompare.strict(x, y).match)
 
 const s = o => JSON.stringify(o)
 
@@ -26,7 +23,7 @@ test('all kinds', done => {
 
   let _test = (className, valid) => {
     const node = classes[className].encoder(valid)
-    assert.deepEqual(node.encode(), valid)
+    assert.deepStrictEqual(node.encode(), valid)
   }
   _test('TestString', 'string')
   _test('TestInt', 120)
@@ -84,6 +81,7 @@ test('all kinds in struct', done => {
     null: null
   }
   const t = classes.Test.encoder(hw)
+  assert.deepStrictEqual(t.encode(), hw)
   done()
 })
 
@@ -97,7 +95,7 @@ test('advanced features', done => {
 
   let _test = (className, value) => {
     const node = classes[className].encoder(value)
-    assert.deepEqual(node.encode(), value)
+    assert.deepStrictEqual(node.encode(), value)
   }
   _test('Bar', ['asdf'])
   _test('Bar', [])
@@ -110,6 +108,7 @@ test('advanced features', done => {
       classes[className].encoder(invalid)
       threw = false
     } catch (e) {
+      // noop
     }
     if (!threw) {
       throw new Error(`${className} should throw with ${s(invalid)}`)
