@@ -3,7 +3,6 @@ const assert = require('assert')
 const { it } = require('mocha')
 const main = require('../')
 const parse = require('./parse')
-const bytes = require('bytesish')
 
 const test = it
 
@@ -75,7 +74,7 @@ test('all kinds in struct', done => {
     string: 'test',
     int: 1,
     float: 1.1,
-    bytes: bytes.native('test'),
+    bytes: Buffer.from('test'),
     map: { hello: 'world' },
     list: [null],
     null: null
