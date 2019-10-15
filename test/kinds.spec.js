@@ -121,3 +121,26 @@ test('advanced features', done => {
 
   done()
 })
+
+/* Errors */
+
+test('kind errors', done => {
+  const types = require('../lib/types')({})
+  const i = types.Int.encoder(1)
+  assert.ok(i.isKind)
+  try {
+    i.resolve('test')
+    throw new Error('should have thrown')
+  } catch (e) {
+    if (e.message !== 'Cannot lookup sub-properties on kind') throw e
+  }
+  try {
+    types.Null.encoder(true)
+    throw new Error('should have thrown')
+  } catch (e) {
+    if (e.message !== 'true is not a valid Null') throw e
+  }
+  const b = types.Bytes.encoder(Buffer.from('asdf'))
+  assert.strictEqual(b.encode().toString(), b.block().encode().toString())
+  done()
+})
