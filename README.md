@@ -1,5 +1,5 @@
 # ipld-schema-gen
 
-![248718](https://img.shields.io/badge/compiled%20bundle-249k-yellow) ![75000](https://img.shields.io/badge/gzipped%20bundle-75k-yellowgreen)
+![248834](https://img.shields.io/badge/compiled%20bundle-249k-yellow) ![75027](https://img.shields.io/badge/gzipped%20bundle-75k-yellowgreen)
 
 Generate a JS API from an IPLD Schema
