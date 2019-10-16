@@ -11,13 +11,13 @@
   "author": "Mikeal Rogers <mikeal.rogers@gmail.com> (https://www.mikealrogers.com/)",
   "license": "(Apache-2.0 AND MIT)",
   "dependencies": {
-    "@ipld/block": "^2.0.4",
+    "@ipld/block": "^2.0.6",
     "bytesish": "^0.4.1",
     "cids": "^0.7.1",
-    "ipld-schema": "^0.3.0"
+    "ipld-schema": "^0.3.1"
   },
   "devDependencies": {
-    "aegir": "^20.1.0",
+    "aegir": "^20.4.1",
     "tcompare": "^2.3.0"
   },
   "directories": {

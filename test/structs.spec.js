@@ -3,11 +3,8 @@ const assert = require('assert')
 const { it } = require('mocha')
 const main = require('../')
 const parse = require('./parse')
-const tcompare = require('tcompare')
 
 const test = it
-
-const strict = (x, y) => assert.ok(tcompare.strict(x, y).match)
 
 test('basic struct', done => {
   const schema = `
@@ -18,11 +15,9 @@ test('basic struct', done => {
   `
   const classes = main(parse(schema))
   const hw = { name: 'hello world', i: 1 }
-  const t = new classes.Test(hw)
+  const t = classes.Test.encoder(hw)
 
-  strict(t.encode(), hw)
-
-  strict(t.encode(), classes.Test.encoder(hw).encode())
+  assert.deepStrictEqual(t.encode(), hw)
   done()
 })
 
@@ -33,13 +28,11 @@ test('nullable', done => {
   }
   `
   const classes = main(parse(schema))
-  let t = new classes.Test({ name: 'hello world' })
+  let t = classes.Test.encoder({ name: 'hello world' })
 
-  strict(t.encode(), { name: 'hello world' })
-  t = new classes.Test({ name: null })
-  strict(t.encode(), { name: null })
-
-  strict(t.encode(), classes.Test.encoder({ name: null }).encode())
+  assert.deepStrictEqual(t.encode(), { name: 'hello world' })
+  t = classes.Test.encoder({ name: null })
+  assert.deepStrictEqual(t.encode(), { name: null })
   done()
 })
 
@@ -51,9 +44,8 @@ test('properties w/o schema', done => {
   `
   const hw = { name: 'hello', test: 'world' }
   const classes = main(parse(schema))
-  const t = new classes.Test(hw)
-  strict(t.encode(), hw)
-  strict(t.encode(), classes.Test.encoder(hw).encode())
+  const t = classes.Test.encoder(hw)
+  assert.deepStrictEqual(t.encode(), hw)
   done()
 })
 
@@ -72,9 +64,15 @@ test('struct in struct', async () => {
   const hw = { b: { c: { name: 'hello' } } }
   const classes = main(parse(schema))
 
-  const a = new classes.A(hw)
-  strict(a.encode(), hw)
-  strict(a.encode(), classes.A.encoder(hw).encode())
+  const a = classes.A.encoder(hw)
+  assert.deepStrictEqual(a.encode(), hw)
+  let x = await a.get('b/c/name')
+  assert.deepStrictEqual(x, 'hello')
 
-  strict(await a.get('b/c/name'), 'hello')
+  x = await a.getNode('b/c/name')
+  assert.strictEqual(x.value, 'hello')
+  assert.strictEqual(x.constructor.name, 'String')
+
+  x = await a.getNode('b')
+  assert.strictEqual(x.constructor.name, 'B')
 })
