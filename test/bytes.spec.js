@@ -3,6 +3,7 @@ const assert = require('assert')
 const { it } = require('mocha')
 const main = require('../')
 const parse = require('./parse')
+const bytes = require('bytesish')
 
 const test = it
 
@@ -18,5 +19,5 @@ test('read bytes', async () => {
     // noop
   }
 
-  assert.strictEqual(chunk.toString(), 'asdf')
+  assert.strictEqual(bytes.toString(chunk), 'asdf')
 })
