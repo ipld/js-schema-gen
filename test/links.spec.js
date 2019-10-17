@@ -45,6 +45,18 @@ test('basic struct', async () => {
   strict(t.encode(), classes.Test.encoder(origin).encode())
 })
 
+test('link resolve', async () => {
+  const schema = `
+  type L &Int
+  `
+  const { getBlock, put } = storage()
+  const classes = main(parse(schema), { getBlock })
+  const intBlock = Block.encoder(12, 'dag-cbor')
+  await put(intBlock)
+  const l = classes.L.encoder(await intBlock.cid())
+  assert.strictEqual(12, await l.get())
+})
+
 test('link without expected type', async () => {
   const schema = `
   type Test struct {
