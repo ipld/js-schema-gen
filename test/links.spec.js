@@ -45,6 +45,21 @@ test('basic struct', async () => {
   strict(t.encode(), classes.Test.encoder(origin).encode())
 })
 
+test('link in map', async () => {
+  const schema = `
+  type TestInt int
+  type TestMap {String:&TestInt}
+  `
+  const { getBlock, put } = storage()
+  const classes = main(parse(schema), { getBlock })
+  const intBlock = Block.encoder(12, 'dag-cbor')
+  await put(intBlock)
+  const testMap = classes.TestMap.encoder({ test: await intBlock.cid() })
+  const node = await testMap.getNode('test')
+  strict(node.constructor.name, 'TestInt')
+  strict(node.encode(), 12)
+})
+
 test('link resolve', async () => {
   const schema = `
   type L &Int
