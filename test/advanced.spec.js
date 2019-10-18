@@ -40,3 +40,20 @@ test('advanced bytes (no read)', done => {
   strict(hw, passed.encode())
   done()
 })
+
+test('advanced types passed into another schema', async () => {
+  const schema = `
+  type DataLayout map
+  advanced DataLayout
+  type Data bytes representation advanced DataLayout
+  `
+  let passed = false
+  const DataLayout = { test: node => { passed = node.value } }
+  const types = main(parse(schema), { advanced: { DataLayout } })
+  const classes = main(parse(`type Test {String:Data}`), { types })
+  const hw = {test: { name: 'hello world', i: 1 }}
+  const t = classes.Test.encoder(hw)
+  let node = await t.getNode('test')
+  node.test()
+  strict(hw.test, passed.encode())
+})
