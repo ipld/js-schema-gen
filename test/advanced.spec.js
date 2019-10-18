@@ -50,10 +50,10 @@ test('advanced types passed into another schema', async () => {
   let passed = false
   const DataLayout = { test: node => { passed = node.value } }
   const types = main(parse(schema), { advanced: { DataLayout } })
-  const classes = main(parse(`type Test {String:Data}`), { types })
-  const hw = {test: { name: 'hello world', i: 1 }}
+  const classes = main(parse('type Test {String:Data}'), { types })
+  const hw = { test: { name: 'hello world', i: 1 } }
   const t = classes.Test.encoder(hw)
-  let node = await t.getNode('test')
+  const node = await t.getNode('test')
   node.test()
   strict(hw.test, passed.encode())
 })
