@@ -99,7 +99,7 @@ const create = opts => {
 
     block () {
       const data = this.encode()
-      return Block.encoder(data, opts.codec || 'dag-json')
+      return Block.encoder(data, opts.codec || 'dag-cbor')
     }
 
     decode () {
