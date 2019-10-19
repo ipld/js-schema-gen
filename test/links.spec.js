@@ -22,7 +22,7 @@ const storage = () => {
 
 test('serializer', done => {
   const cid = new CID('QmWATWQ7fVPP2EFGu71UkfnqhYXDYH566qy47CnJDgvs8u')
-  const serialize = require('../lib/types').serializeObject
+  const serialize = require('../src/types').serializeObject
   const cid2 = serialize(cid)
   assert.strictEqual(cid.toString(), cid2.toString())
   assert.deepStrictEqual([], serialize([]))

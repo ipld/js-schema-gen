@@ -1,2 +1,2 @@
 'use strict'
-module.exports = require('./lib/parse')
+module.exports = require('./src/parse')

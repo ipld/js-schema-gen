@@ -125,7 +125,7 @@ test('advanced features', done => {
 /* Errors */
 
 test('kind errors', done => {
-  const types = require('../lib/types')({})
+  const types = require('../src/types')({})
   const i = types.Int.encoder(1)
   assert.ok(i.isKind)
   try {

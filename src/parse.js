@@ -1,9 +1,9 @@
+'use strict'
 const createTypes = require('./types')
 
-const parse = (schema, opts={}) => {
+const parse = (schema, opts = {}) => {
   const types = createTypes(opts)
 
-  const kinds = Object.keys(types).map(k => k.toLowerCase())
   const classes = {}
 
   const createClass = (className, _schema) => {
@@ -26,7 +26,7 @@ const parse = (schema, opts={}) => {
   }
 
   if (schema.types) {
-    for (let [className, _schema] of Object.entries(schema.types)) {
+    for (const [className, _schema] of Object.entries(schema.types)) {
       let Class
       if (_schema.representation && _schema.representation.advanced) {
         const advName = _schema.representation.advanced
@@ -42,7 +42,7 @@ const parse = (schema, opts={}) => {
             if (!(value instanceof Class)) throw new Error('Cannot re-type node')
             return value
           }
-          return new Class(value, {..._schema, nodeType}, opts.advanced[advName])
+          return new Class(value, { ..._schema, nodeType }, opts.advanced[advName])
         }
       } else {
         Class = createClass(className, _schema)
@@ -52,7 +52,7 @@ const parse = (schema, opts={}) => {
             return value
           }
           let __schema
-          if (fieldSchema) __schema = {..._schema, fieldSchema}
+          if (fieldSchema) __schema = { ..._schema, fieldSchema }
           else __schema = _schema
           return new Class(value, __schema)
         }
