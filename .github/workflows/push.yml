@@ -8,23 +8,19 @@ jobs:
     - uses: actions/checkout@master
     - name: Build
       uses: ianwalter/puppeteer@master
-      with:
-        entrypoint: npm
-        args: install
+      run: npm install
     - name: Test
       uses: ianwalter/puppeteer@master
-      with:
-        entrypoint: npm
-        args: test
+      run: npm test
     - name: Publish
       uses: mikeal/merge-release@master
-      if: github.ref == 'refs/heads/master' && github.repository == 'mikeal/ipld-schema-gen'
+      if: github.ref == 'refs/heads/master'
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
     - uses: mikeal/bundle-size-action@master
-      if: github.ref == 'refs/heads/master' && github.repository == 'mikeal/ipld-schema-gen'
+      if: github.ref == 'refs/heads/master'
     - uses: mikeal/publish-to-github-action@master
-      if: github.ref == 'refs/heads/master' && github.repository == 'mikeal/ipld-schema-gen'
+      if: github.ref == 'refs/heads/master'
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
