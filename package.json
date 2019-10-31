@@ -1,5 +1,5 @@
 {
-  "name": "ipld-schema-gen",
+  "name": "@ipld/schema-gen",
   "version": "0.0.0-dev",
   "main": "index.js",
   "scripts": {
