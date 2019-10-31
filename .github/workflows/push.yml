@@ -8,10 +8,14 @@ jobs:
     - uses: actions/checkout@master
     - name: Build
       uses: ianwalter/puppeteer@master
-      run: npm install
+      with:
+        entrypoint: npm
+        args: build
     - name: Test
       uses: ianwalter/puppeteer@master
-      run: npm test
+      with:
+        entrypoint: npm
+        args: test
     - name: Publish
       uses: mikeal/merge-release@master
       if: github.ref == 'refs/heads/master'
