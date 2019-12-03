@@ -12,6 +12,7 @@ const parse = (schema, opts = {}) => {
     const Base = types[kindName]
     if (!Base) throw new Error(`Unknown kind ${_schema.kind}`)
     const Class = class Dynamic extends Base {}
+    Class.__schema = _schema
     Object.defineProperty(Class, 'name', { value: className })
     return Class
   }
