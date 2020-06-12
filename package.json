@@ -25,11 +25,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mikeal/ipld-schema-gen.git"
+    "url": "git+https://github.com/ipld/js-schema-gen.git"
   },
   "bugs": {
-    "url": "https://github.com/mikeal/ipld-schema-gen/issues"
+    "url": "https://github.com/ipld/js-schema-gen/issues"
   },
-  "homepage": "https://github.com/mikeal/ipld-schema-gen#readme",
-  "description": ""
+  "homepage": "https://github.com/ipld/js-schema-gen#readme",
+  "description": "Generate type interfaces from IPLD Schema"
 }
